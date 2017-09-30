@@ -1,5 +1,5 @@
 #include "CalendarParser.h"
-
+#include <ctype.h>
 
 
 /**
@@ -15,4 +15,10 @@ int compareProperty (Property first, Property second);
 **/
 Property* createProperty(char* propName, char* propDescr);
 
+/**
+*Initialize an alarm based on string for action and string for trigger
+**/
+Alarm* initializeAlarm (char* action, char* trigger);
 
+//replace new line at end of string
+void replaceNewLine(char* string);
