@@ -1,0 +1,5 @@
+Oct  08, 2017 10:40pm
+new error on valgrind
+	invalid read of size 8
+	in the clearList function when I am deleting
+	the event's list of properties

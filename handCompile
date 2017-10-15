@@ -1,0 +1,2 @@
+gcc -c main.c -o main.o -I../assign1/include
+gcc main.o -I../assign1/include -L/cygdrive/c/Users/Storm/2750/assign1/bin -l../assign1/bin/list -l../assign1/bin/cparse -o run  

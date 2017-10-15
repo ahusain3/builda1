@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "LinkedListAPI.h"
 
 /** Function to initialize the list metadata head with the appropriate function pointers.
@@ -36,19 +37,18 @@ List initializeList(char* (*printFunction)(void* toBePrinted),void (*deleteFunct
 **/
 Node* initializeNode(void* data)
 {
+	//function fails if data is NULL
+	if (data == NULL)
+	{
+		return NULL;
+	}
+
 	//allocate node on heap
 	Node* newNode = malloc(sizeof(Node));
 	
 	//function fails if malloc fails
 	if ( newNode == NULL )
 	{
-		return NULL;
-	}
-
-	//function fails if data is NULL
-	if (data == NULL)
-	{
-		free(newNode);
 		return NULL;
 	}
 
@@ -67,21 +67,26 @@ Node* initializeNode(void* data)
 **/
 void insertFront(List* list, void* toBeAdded)
 {
+
+	if ( list == NULL )
+	{
+		return;
+	}
+
 	//make new node toBeAdded
 	Node* newNode = initializeNode( toBeAdded );
 
+	
 	//check if head is NULL
 	if ( list->head == NULL )
 	{
 		//set head to newNode
 		list->head = newNode;
-		//set tail as NULL
-		list->tail = NULL;
+		//set tail as new node 
+		list->tail = newNode;
 		return;
 	}
-
-	//check if head is not NULL
-	if ( list->head != NULL )
+	else //if ( list->head != NULL )
 	{
 		//point new next to head
 		newNode->next = list->head;
@@ -105,6 +110,11 @@ void insertFront(List* list, void* toBeAdded)
 **/
 void insertBack(List* list, void* toBeAdded)
 {
+	if ( list == NULL )
+	{
+		return;
+	}
+
 	//make new node using toBeAdded
 	Node* newNode = initializeNode( toBeAdded );
 
@@ -114,7 +124,7 @@ void insertBack(List* list, void* toBeAdded)
 		//set new node as head
 		list->head = newNode;
 		//set tail as NULL
-		list->tail = NULL;
+		list->tail = newNode;
 		return;
 	}
 
@@ -148,6 +158,18 @@ void insertBack(List* list, void* toBeAdded)
 **/
 void clearList(List* list)
 {
+	//if list is NULL
+	if ( list == NULL )
+	{
+		return;
+	}
+
+	//if list head is NULL
+	if ( list->head == NULL )
+	{
+		return;
+	}
+
 	Node* tail = list->head;
 	Node* head = list->head;
 
@@ -156,6 +178,9 @@ void clearList(List* list)
 	{
 		//set temp to head
 		tail = head->next;
+
+		//free data inside first
+		list->deleteData(head->data);
 		//free temp
 		free(head);
 		//move head to head next
@@ -180,16 +205,25 @@ as a pointer to the first and last element of the list.
 **/
 void insertSorted(List* list, void* toBeAdded)
 {
+	if ( list == NULL )
+	{
+		return;
+	}
+	if (toBeAdded == NULL)
+	{	
+		return;
+	}	
 	
 	//if head and tail NULL
 	if( list->head == NULL && list->tail == NULL )
 	{
-		//make new node  using toBeAdded
-		Node* newNode = initializeNode( toBeAdded);
+	   //make new node  using toBeAdded
+		Node* newNode = initializeNode(toBeAdded);
+
 		//set new as head
 		list->head = newNode;
 		//set tail as NULL
-		list->tail = NULL;
+		list->tail = newNode;
 		return;
 	}
 
@@ -210,35 +244,44 @@ void insertSorted(List* list, void* toBeAdded)
 			insertBack(list, toBeAdded);
 		}
 		return;
-	} 
-	
-	//make new node using toBeAdded
-	Node* newNode = initializeNode( toBeAdded);
+	}
 
 	//connect new node into the middle of the list
 	//find node to insert after
 	//start at tail go towards head
-	
 	Node* curr = list->tail;
-	while ( curr->previous != NULL )
+	while ( curr != NULL )
 	{
 		
-		int order = list->compare(newNode->data, curr->data); 
-		//if new data >= curr data
-		if ( order >= 0)
+		int order = list->compare(toBeAdded, curr->data); 
+
+		//insert at end of list
+		if (order >= 0 && curr == list->tail)
+		{
+			insertBack(list, toBeAdded);			
+			return;
+		}
+
+		//insert after curr in middle of list
+		if ( order >= 0 && curr != list->tail)
 		{	
+		
+			//make new node using toBeAdded
+			Node* newNode = initializeNode(toBeAdded);
+			if ( newNode == NULL )
+			{
+				return;
+			}
+
 			//insert after curr
+			Node* oldNext = curr->next;
+			//if inserting in middle of list
+			oldNext->previous = newNode;			
 			//point new next to curr->next
 			newNode->next = curr->next;
 			//point new prev to curr
 			newNode->previous = curr;
-			curr->next = newNode;			
-			Node* oldNext = curr->next;
-			//if inserting at end of list
-			if ( oldNext != NULL )
-			{
-				oldNext->previous = newNode;
-			}
+			curr->next = newNode;	
 				
 			return;
 		}
@@ -250,7 +293,7 @@ void insertSorted(List* list, void* toBeAdded)
 			insertFront(list, toBeAdded);
 			return;
 		}
-		
+
 		curr = curr->previous;
 	}
 	
@@ -264,10 +307,15 @@ void insertSorted(List* list, void* toBeAdded)
  **/
 void* getFromFront(List list)
 {
-	//check for NULL
+	//if head is NULL
+	if ( list.head == NULL )
+	{
+		return NULL;
+	}
+	//check for NULL data
 	if (list.head->data == NULL)
 	{
-		printf("Warning : front does not have data.");
+		return NULL;
 	}	
 
 	return list.head->data;
@@ -280,10 +328,15 @@ void* getFromFront(List list)
  **/
 void* getFromBack(List list)
 {
+	//if list tail NULL
+	if ( list.tail == NULL )
+	{
+		return NULL;
+	}
 	//check for NULL data
 	if (list.tail->data == NULL)
 	{
-		printf("Warning : front does not have data.");
+		return NULL;
 	}
 
 	return list.tail->data;
@@ -344,6 +397,12 @@ void* nextElement(ListIterator* iter)
  **/
 void* deleteDataFromList(List* list, void* toBeDeleted)
 {
+	//if toBeDeleted is NULL
+	if ( toBeDeleted == NULL )
+	{
+		return NULL;
+	}
+
 	//find node
 	Node* curr = list->head;
 	while ( curr != NULL )
@@ -425,14 +484,15 @@ char* toString(List list)
 	//moving through list and also handling NULL head case
 	while ( curr != NULL)
 	{
-		//get node's String description  ********FREE IT LATER
+		// //get node's String description  ********FREE IT LATER
 		char* currData = list.printData(curr->data);
+
 		//add head description to returnString
 		//check NULL because for before adding head descr returnString is NULL
 		if (returnString == NULL)
 		{
 			//instead of keeping a character counter we use strlen everytime
-			returnString = malloc( sizeof(char) * strlen(currData + 1) );
+			returnString = malloc( sizeof(char) * (strlen(currData) + 1) );
 			if ( returnString == NULL )
 			{
 				return NULL;
@@ -442,17 +502,16 @@ char* toString(List list)
 		}
 		else
 		{
-			//malloc for the size of the old string plus size of the new string
-			char* newReturn = malloc( sizeof(char) * ( strlen(returnString) + strlen(currData) + 2 ) );
+			//malloc for the size of the old string plus size of the new string + (null + ; + space) gives us 3
+			char* newReturn = malloc( sizeof(char) * ( strlen(returnString) + strlen(currData) + 3 ) );
 			if ( newReturn == NULL )
 			{
 				return NULL;
 			} 
 			//put the old and new strings into newReturn
 			strcpy(newReturn , returnString);
-			strcat(returnString , "; ");
+			strcat(newReturn , "- ");
 			strcat(newReturn , currData);
-
 			//free old memory
 			free(returnString);
 			//point to newer bigger place in memory

@@ -48,8 +48,7 @@ typedef struct evt {
 	//Additional event properties.  All objects in the list will be of type Property.  It may be empty.
 	List 	    properties;
 	//List of alarms associated with the event.  All objects in the list will be of type Alarm.  It may be empty.
-    List        alarms;
-	
+    List        alarms;	
 } Event;
 
 //Represents an iCalendar object
@@ -103,6 +102,6 @@ char* printCalendar(const Calendar* obj);
           the descr array using rhe error code enum value as an index
  *@param err - an error code
 **/
-const char* printError(ErrorCode err);   
+char* printError(ErrorCode err);
 
 #endif	
