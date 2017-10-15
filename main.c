@@ -96,6 +96,10 @@ int main (void)
 
 	dummyEvent = createEvent(UID, creationDateTime, eventPropList, alarmList);
 
+	//Print Event
+	char* returnString = printEvent((void*) dummyEvent);
+	printf("%s\n", returnString);
+	free(returnString);
 
 	deleteEvent((void*) dummyEvent);
 

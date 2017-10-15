@@ -277,6 +277,48 @@ void deleteEvent(void* toBeDeleted)
 }
 
 /**
+*Returns a humanly readable copy of the event contents
+**/
+char* printEvent(void* toBePrinted)
+{
+	//Arg1 check for NULL pointer
+	if (toBePrinted == NULL)
+	{
+		return NULL;
+	}
+
+	char* tmpStr = NULL;
+	char creationDateTime[19];
+	char* stringProp = NULL;
+	char* stringAlarms = NULL;
+	Event* tempEvent = NULL;
+	int length = 0;
+
+	tempEvent = (Event*) toBePrinted;	
+
+	//need 1000 chars worth for UID + 19 for creationDateTime + strlen for properties
+	//+ strlen for alarms + 1 for null terminator 
+	stringAlarms = toString(tempEvent->alarms);
+	stringProp = toString(tempEvent->properties);
+	strcpy(creationDateTime, tempEvent->creationDateTime.date);
+	strcat(creationDateTime, "T");
+	strcat(creationDateTime, tempEvent->creationDateTime.time);
+	strcat(creationDateTime, "Z");
+
+	length = 1000 + 19 + (strlen(stringProp)) + (strlen(stringAlarms)) + 1 ;
+	tmpStr = malloc(sizeof(char)*length);
+
+
+	sprintf(tmpStr, "%s : %s : %s : %s\n", tempEvent->UID, creationDateTime, stringProp, stringAlarms);
+
+	free(stringProp);
+	free(stringAlarms);
+
+	//END
+	return tmpStr;
+}
+
+/**
 *Function for parsing an event for the calendar
 **/
 Event* parseEvent(FILE* file, int* eventErr)
@@ -614,7 +656,8 @@ char* printAlarm ( void* toBePrinted )
 	sprintf(tmpStr, "%s : %s : %s\n", tmpAlarm->action, tmpAlarm->trigger, stringProp);
 
 	free(stringProp);
-	//***UNFINISHED**
+
+	//END
 	return tmpStr;
 }
 

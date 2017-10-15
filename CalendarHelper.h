@@ -42,6 +42,11 @@ Event* createEvent(char* UID, DateTime creationDateTime, List properties, List a
 void deleteEvent(void* toBeDeleted);
 
 /**
+*Returns a humanly readable copy of the event contents
+**/
+char* printEvent(void* toBePrinted);
+
+/**
 *Returns a string that contains a humanly readable copy of the property contents
 **/
 char* printProp ( void* toBePrinted );
