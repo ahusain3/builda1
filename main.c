@@ -104,6 +104,18 @@ int main (void)
 	//for the event we use dummyEvent
 	Calendar* dummyCal = initializeCalendar(version, prodID, dummyEvent);
 
+
+	//Print Calendar
+	char* returnString = printCalendar(dummyCal);
+	printf("%s\n", returnString);
+	free(returnString);
+
+	//Print Calendar again
+	char* printAgain = printCalendar(dummyCal);
+	printf("%s\n", printAgain);
+	free(printAgain);
+
+
 	deleteCalendar(dummyCal);
 
 	//deleteEvent((void*) dummyEvent);

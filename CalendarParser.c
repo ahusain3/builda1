@@ -308,6 +308,43 @@ void deleteCalendar(Calendar* obj)
 	//END
 	return;
 }
+
+/** Function to create a string representation of a Calendar object.
+ *@pre Calendar object exists, is not null, and is valid
+ *@post Calendar has not been modified in any way, and a string representing the Calndar contents has been created
+ *@return a string contaning a humanly readable representation of a Calendar object
+ *@param obj - a pointer to a Calendar struct
+**/
+char* printCalendar(const Calendar* obj)
+{
+	//Arg 1 check obj for Null pointer
+	if (obj == NULL)
+	{
+		return NULL;
+	}
+
+	char* tmpStr = NULL;
+	char* stringEvent = NULL;
+	int length = 0;
+
+	//need 1000 chars worth for prodID + 20 for version + strlen for event
+	//+ 1 for null terminator 
+	Event* tempEvent = obj->event;
+	stringEvent = printEvent((void*)tempEvent);
+
+	length = 1000 + 20 + (strlen(stringEvent)) + 1 ;
+	tmpStr = malloc(sizeof(char)*length);
+
+
+	sprintf(tmpStr, "%f : %s : %s\n", obj->version, obj->prodID, stringEvent);
+
+	free(stringEvent);
+
+	//END
+	return tmpStr;	
+}
+
+
 /**create an event based on string for UID, a DateTime struc for creationDateTime, 
 *a List of properties and a List of alarms
 *@return a pointer to the created event on success or a NULL pointer if function fails
