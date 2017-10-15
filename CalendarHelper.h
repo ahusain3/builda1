@@ -16,7 +16,7 @@ int compareProp (const void* first, const void* second);
 Property* createProperty(char* propName, char* propDescr);
 
 /**
-*parse an alarm section of the icaledar file
+*parse an alarm section of the icalendar file
 **/
 Alarm* parseAlarm (FILE* file);
 
@@ -71,3 +71,9 @@ void deleteAlarm (void* toBeDeleted);
 *@return a pointer to the created alarm on success or a NULL pointer on failure
 **/
 Alarm* createAlarm(char* action, char* trigger, List properties);
+
+/**Initialize the attributes of a Calendar give a float for version, string for product ID
+*and a pointer to an Event for the event attribute 
+*@return a pointer to the created Calendar on success or a NULL pointer if function fails
+**/
+Calendar* initializeCalendar(float version, char* prodID, Event* event);

@@ -218,6 +218,96 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 	return OK;
 }
 
+/**Initialize the attributes of a Calendar give a float for version, string for product ID
+*and a pointer to an Event for the event attribute 
+*@return a pointer to the created Calendar on success or a NULL pointer if function fails
+**/
+Calendar* initializeCalendar(float version, char* prodID, Event* event)
+{
+	//Arg1 check? no we do the float check in parser
+	//Arg2 check prodID for NULL pointer
+	if (prodID == NULL)
+	{
+		return NULL;
+	}
+
+	//Arg 3 check event for NULL pointer
+	if (event == NULL)
+	{
+		return NULL;
+	}
+
+	//malloc
+	Calendar* tempCalendar = malloc(sizeof(Calendar) + sizeof(Event));
+	//if malloc fails
+	if (tempCalendar == NULL)
+	{
+		return NULL;
+	}
+
+	//initialize attributes
+
+	//version
+	tempCalendar->version = version;
+
+	//prodID
+	strcpy(tempCalendar->prodID, prodID);
+
+	//event
+	tempCalendar->event = event;
+	// //we must malloc a new event and copy over
+	// //the contents of the argument
+	// tempCalendar->event = malloc(sizeof(Event));
+	
+	// //if malloc fails
+	// if (tempCalendar->event == NULL)
+	// {
+	// 	return NULL;
+	// } 
+
+	// //copy over the contents
+	// Event* tempEvent = tempCalendar->event;
+	// //UID
+	// strcpy(tempEvent->UID , event->UID);
+	// //creationDateTime
+	// tempEvent->creationDateTime = event->creationDateTime;
+	// //List of properties
+	// tempEvent->properties = event->properties;
+	// //List of alarms
+	// tempEvent->alarms = event->alarms;
+
+	// //NOTE: Should I free argument now that I have a copy of it?
+	// deleteEvent((void*)event);
+
+	//END
+	return tempCalendar;
+}
+
+/** Function to delete all calendar content and free all the memory.
+ *@pre Calendar object exists, is not null, and has not been freed
+ *@post Calendar object had been freed
+ *@return none
+ *@param obj - a pointer to a Calendar struct
+**/
+void deleteCalendar(Calendar* obj)
+{
+	// ARG 1 check obj for NULL
+	if ( obj == NULL )
+	{
+		return;
+	}
+
+	//free contents
+	//free event
+	Event* tempEvent = obj->event;
+	deleteEvent((void*) tempEvent);
+	
+	//free the calendar structure
+	free(obj);
+
+	//END
+	return;
+}
 /**create an event based on string for UID, a DateTime struc for creationDateTime, 
 *a List of properties and a List of alarms
 *@return a pointer to the created event on success or a NULL pointer if function fails
@@ -1014,29 +1104,3 @@ char* printError(ErrorCode err)
 	return NULL;
 }
 
-
-/** Function to delete all calendar content and free all the memory.
- *@pre Calendar object exists, is not null, and has not been freed
- *@post Calendar object had been freed
- *@return none
- *@param obj - a pointer to a Calendar struct
-**/
-void deleteCalendar(Calendar* obj)
-{
-	// ARG 1 check obj for NULL
-	if ( obj == NULL )
-	{
-		return;
-	}
-
-	Event* event = obj->event;
-	List* eventProps = &(event->properties);
-	//deleteCalendar parts
-		//delete event parts
-			//delete properties list
-			clearList(eventProps);
-			//delete alarms list
-
-	//END
-	return;
-}

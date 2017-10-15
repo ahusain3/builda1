@@ -96,12 +96,17 @@ int main (void)
 
 	dummyEvent = createEvent(UID, creationDateTime, eventPropList, alarmList);
 
-	//Print Event
-	char* returnString = printEvent((void*) dummyEvent);
-	printf("%s\n", returnString);
-	free(returnString);
+	//initialize a Calendar structure
+	float version = 2.0;
+	char prodID[1000];
+	strcpy(prodID, "uniqueCalendar001");
 
-	deleteEvent((void*) dummyEvent);
+	//for the event we use dummyEvent
+	Calendar* dummyCal = initializeCalendar(version, prodID, dummyEvent);
+
+	deleteCalendar(dummyCal);
+
+	//deleteEvent((void*) dummyEvent);
 
 	//deleteAlarm((void*)dummyAlarm);
 	
