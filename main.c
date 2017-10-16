@@ -3,144 +3,132 @@
 
 int main (void)
 {
-	//create the list 
-	List list = initializeList(&printProp, &deleteProp, &compareProp);
+	// //create the list 
+	// List list = initializeList(&printProp, &deleteProp, &compareProp);
 
-	//POPULATE THE LIST
-	char* newPName = "Russel";
-	char* newPDescr = "teacher";
-	Property* first = createProperty(newPName, newPDescr);
+	// //POPULATE THE LIST
+	// char* newPName = "Russel";
+	// char* newPDescr = "teacher";
+	// Property* first = createProperty(newPName, newPDescr);
 
-	insertBack(&list, (void*)first);
+	// insertBack(&list, (void*)first);
 
-	char* secPName = "lion";
-	char* secPDescr = "brave";
-	Property* sec = createProperty(secPName, secPDescr);
+	// char* secPName = "lion";
+	// char* secPDescr = "brave";
+	// Property* sec = createProperty(secPName, secPDescr);
 
-	insertBack(&list, (void*)sec);
+	// insertBack(&list, (void*)sec);
 
-	//create alarm
-	Alarm* dummyAlarm = NULL;
-	char action[200];
-	char* trigger = malloc(sizeof(char) * 100);
+	// //create alarm
+	// Alarm* dummyAlarm = NULL;
+	// char action[200];
+	// char* trigger = malloc(sizeof(char) * 100);
 	
-	strcpy(action, "Ring");
-	strcpy(trigger, "7am");
+	// strcpy(action, "Ring");
+	// strcpy(trigger, "7am");
 
-	dummyAlarm = createAlarm(action, trigger, list);
+	// dummyAlarm = createAlarm(action, trigger, list);
 
 
-	//create event
-	//declare and initialize UID and creationDateTime
-	Event* dummyEvent;
-	char UID[1000];
-	DateTime creationDateTime;
+	// //create event
+	// //declare and initialize UID and creationDateTime
+	// Event* dummyEvent;
+	// char UID[1000];
+	// DateTime creationDateTime;
 
-	strcpy(UID, "uniqueEvent007");
-	strcpy(creationDateTime.date, "19961019");
-	strcpy(creationDateTime.time, "140703");
+	// strcpy(UID, "uniqueEvent007");
+	// strcpy(creationDateTime.date, "19961019");
+	// strcpy(creationDateTime.time, "140703");
 
-	//create eventPropList
-	//create the list 
-	List eventPropList = initializeList(&printProp, &deleteProp, &compareProp);
+	// //create eventPropList
+	// //create the list 
+	// List eventPropList = initializeList(&printProp, &deleteProp, &compareProp);
 
-	//POPULATE THE LIST
-	newPName = "Fruit";
-	newPDescr = "apple";
-	first = createProperty(newPName, newPDescr);
+	// //POPULATE THE LIST
+	// newPName = "Fruit";
+	// newPDescr = "apple";
+	// first = createProperty(newPName, newPDescr);
 
-	insertBack(&eventPropList, (void*)first);
+	// insertBack(&eventPropList, (void*)first);
 
-	secPName = "Sound";
-	secPDescr = "Roar";
-	sec = createProperty(secPName, secPDescr);
+	// secPName = "Sound";
+	// secPDescr = "Roar";
+	// sec = createProperty(secPName, secPDescr);
 
-	insertBack(&eventPropList, (void*)sec);
+	// insertBack(&eventPropList, (void*)sec);
 
-	//end eventPropList
+	// //end eventPropList
 
-	//create eventAlarmList
-	//create the list of properties for the second alarm
-	List alarm2PropList = initializeList(&printProp, &deleteProp, &compareProp);
+	// //create eventAlarmList
+	// //create the list of properties for the second alarm
+	// List alarm2PropList = initializeList(&printProp, &deleteProp, &compareProp);
 
-	//POPULATE THE LIST
-	newPName = "Sport";
-	newPDescr = "swimming";
-	first = createProperty(newPName, newPDescr);
+	// //POPULATE THE LIST
+	// newPName = "Sport";
+	// newPDescr = "swimming";
+	// first = createProperty(newPName, newPDescr);
 
-	insertBack(&alarm2PropList, (void*)first);
+	// insertBack(&alarm2PropList, (void*)first);
 
-	secPName = "Season";
-	secPDescr = "winter";
-	sec = createProperty(secPName, secPDescr);
+	// secPName = "Season";
+	// secPDescr = "winter";
+	// sec = createProperty(secPName, secPDescr);
 
-	insertBack(&alarm2PropList, (void*)sec);
+	// insertBack(&alarm2PropList, (void*)sec);
 
-	//create second alarm
-	Alarm* dummyAlarm2 = NULL;
-	action[200];
-	trigger = malloc(sizeof(char) * 100);
+	// //create second alarm
+	// Alarm* dummyAlarm2 = NULL;
+	// trigger = malloc(sizeof(char) * 100);
 	
-	strcpy(action, "Beep");
-	strcpy(trigger, "120pm");
+	// strcpy(action, "Beep");
+	// strcpy(trigger, "120pm");
 
-	dummyAlarm2 = createAlarm(action, trigger, alarm2PropList);
+	// dummyAlarm2 = createAlarm(action, trigger, alarm2PropList);
 
-	//initialize alarm list
-	List alarmList = initializeList(&printAlarm, &deleteAlarm, NULL);
+	// //initialize alarm list
+	// List alarmList = initializeList(&printAlarm, &deleteAlarm, NULL);
 	
-	//populate alarm list
-	insertBack(&alarmList, (void*) dummyAlarm);
-	insertBack(&alarmList, (void*) dummyAlarm2);
-	//END eventAlarmList	
+	// //populate alarm list
+	// insertBack(&alarmList, (void*) dummyAlarm);
+	// insertBack(&alarmList, (void*) dummyAlarm2);
+	// //END eventAlarmList	
 
-	dummyEvent = createEvent(UID, creationDateTime, eventPropList, alarmList);
-
-	//initialize a Calendar structure
-	float version = 2.0;
-	char prodID[1000];
-	strcpy(prodID, "uniqueCalendar001");
-
-	//for the event we use dummyEvent
-	Calendar* dummyCal = initializeCalendar(version, prodID, dummyEvent);
+	// dummyEvent = createEvent(UID, creationDateTime, eventPropList, alarmList);
 
 
-	//Print Calendar
-	char* returnString = printCalendar(dummyCal);
-	printf("%s\n", returnString);
-	free(returnString);
+	// //initialize a Calendar structure
+	// float version = 2.0;
+	// char prodID[1000];
+	// strcpy(prodID, "uniqueCalendar001");
 
-	//Print Calendar again
-	char* printAgain = printCalendar(dummyCal);
-	printf("%s\n", printAgain);
-	free(printAgain);
+	// //for the event we use dummyEvent
+	// Calendar* dummyCal = initializeCalendar(version, prodID, dummyEvent);
 
 
-	deleteCalendar(dummyCal);
 
-	//deleteEvent((void*) dummyEvent);
+	// //Print Calendar
+	// char* returnString = printCalendar(dummyCal);
+	// printf("%s\n", returnString);
+	// free(returnString);
 
-	//deleteAlarm((void*)dummyAlarm);
-	
-	// printf("%s    %s\n", new->propName , new->propDescr);
+	// //Print Calendar again
+	// char* printAgain = printCalendar(dummyCal);
+	// printf("%s\n", printAgain);
+	// free(printAgain);
+
+
+//	deleteCalendar(dummyCal);
 
 	//check createCalendar
-	//char* fileName = "ahsenCalendar.ics";
+	char* fileName = "ahsenCalendar.ics";
 
-	//Calendar* cal = NULL;
+	Calendar* cal = NULL;
 
 
-	//createCalendar(fileName, &cal);
+	createCalendar(fileName, &cal);
 	
-	//printf("%s\n", cal->prodID);
-	// printf("version %lf\n", cal->version);
-	 // printf("%s\n", cal->event->UID);
-	// printf("%s\n",cal->event->creationDateTime.date );
-	// printf("%s\n",cal->event->creationDateTime.time );
-	// char* listDescr = toString(cal->event->properties);
-	// printf("%s\n", listDescr);
 
-	//deleteCalendar(cal);
+	deleteCalendar(cal);
 
 	return 0;
 }

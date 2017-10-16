@@ -18,13 +18,10 @@
 ErrorCode createCalendar(char* fileName, Calendar** obj)
 {
 	Calendar* cal = malloc(sizeof(Calendar));
-	
-	// ARG 2 check obj for NULL
 	if ( cal == NULL )
 	{
 		return INV_CAL;
 	}
-
 	*obj = cal;
 	int eventErr = 0;
 	int setProdID = 0;
@@ -35,7 +32,7 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 	FILE * file;
 	file = fopen(fileName, "r");
 	
-	// ARG 1 check filename for invalid filename
+	//check invalid file
 	if (file == NULL)
 	{
 		return (INV_FILE);
@@ -91,7 +88,7 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 		char* event = "BEGIN:VEVENT";
 		char* endCal = "END:VCALENDAR";
 		
-		//if line has end calendar tag stop reading in calendar content
+		//if lin has end calendar tag stop reading in calendar content
 		if ( strstr(line, endCal) != NULL)
 		{
 			//set end of calendar
@@ -217,6 +214,7 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 	fclose(file);
 	return OK;
 }
+
 
 /**Initialize the attributes of a Calendar give a float for version, string for product ID
 *and a pointer to an Event for the event attribute 
@@ -369,6 +367,8 @@ Event* createEvent(char* UID, DateTime creationDateTime, List properties, List a
 	tempEvent->creationDateTime = creationDateTime;
 	tempEvent->properties = properties;
 	tempEvent->alarms = alarms;
+
+	return tempEvent;
 }
 
 /**
