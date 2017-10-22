@@ -17,6 +17,58 @@
 **/
 ErrorCode createCalendar(char* fileName, Calendar** obj)
 {
+	//Arg 1 check fileName for NULL pointer
+	if (fileName == NULL)
+	{
+		return INV_FILE;
+	}
+
+	//Arg 2 check obj for NULL pointer
+	if (obj == NULL)
+	{
+		return INV_CAL;
+	}
+
+
+
+
+	//check for invalid file extenstion
+	char* copy = malloc(sizeof(char) * (strlen(fileName) + 1));
+	char* chunk;
+
+	//make copy of fileName
+	strcpy(copy, fileName);
+
+	//store file extionsion in chunk
+	chunk = strtok(copy,".");
+	chunk = strtok(NULL, ".");
+
+	if (strcmp(chunk, "ics") != 0)
+	{
+		free(copy);
+		return INV_FILE;
+	}
+
+	free(copy);
+
+
+	// char nameCopy[250];
+	// strcpy(nameCopy , fileName);
+	// //strtok the fileName
+	// char* token;
+	// token = strtok(fileName,".");
+	// printf("%s\n", token);
+	// replaceNewLine(token);
+	// //check if the token after the "." is ics
+	// //second token
+	// token = strtok(NULL,".");
+	// replaceNewLine(token);
+	// if ( strcmp(token,"ics") != 0)
+	// {
+	// 	return INV_FILE;
+	// }
+
+
 	Calendar* cal = malloc(sizeof(Calendar));
 	if ( cal == NULL )
 	{
@@ -44,14 +96,20 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 	//get BEGIN:VCALENDAR line
 	if ( fgets(line, 100, file) != NULL)
 	{
+		if (checkLineEnd(line) == 1)
+		{
+			return INV_CAL;
+		}
+
 		//while there are comments go to next line
 		while(line[0] == ';')
 		{
-			fgets(line, 100, file);
+			continue;
 		}
 			
 		//strtok the line
 		token = strtok(line,":");
+		
 		replaceNewLine(token);
 
 		//first token is not BEGIN
@@ -74,6 +132,11 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 	//loop through lines
 	while ( fgets(line, 100, file) != NULL )
 	{
+		if (checkLineEnd(line) == 1)
+		{
+			return INV_CAL;
+		}
+
 		replaceNewLine(line);
 
 		//if blank line
@@ -100,7 +163,7 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 		if (line[0] == ';')
 		{
 			//go to next line
-			fgets(line, 100, file);
+			continue;
 		}
 		
 		//if line is PRODID
@@ -115,14 +178,14 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 			
 			if (token == NULL)
 			{
-				return INV_CAL;
+				return INV_PRODID;
 			}
 			
 			replaceNewLine(token);
 
 			if ( strcmp(token,"PRODID") != 0)
 			{
-				return INV_CAL;
+				return INV_PRODID;
 			}
 
 			//get second half of line
@@ -130,7 +193,7 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 
 			if (token == NULL)
 			{
-				return INV_CAL;
+				return INV_PRODID;
 			}
 
 			replaceNewLine(token);
@@ -152,14 +215,14 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 			token = strtok(line, ":");
 			if ( token == NULL )
 			{
-				return INV_CAL;
+				return INV_VER;
 			}
 
 			replaceNewLine(token);
 
 			if ( strcmp(token,"VERSION") != 0)
 			{
-				return INV_CAL;
+				return INV_VER;
 			}
 
 			//get second half of line
@@ -167,7 +230,7 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 
 			if ( token == NULL )
 			{
-				return INV_CAL;
+				return INV_VER;
 			}
 
 			replaceNewLine(token);
@@ -183,10 +246,15 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 		{
 			//call to create event
 			cal->event = parseEvent(file, &eventErr);
+			if (eventErr != OK)
+			{
+				return eventErr;
+			}
 			if ( cal->event == NULL )
 			{
 				return INV_EVENT;
 			}
+
 			setEvent = 1;
 		}
 	}
@@ -198,12 +266,12 @@ ErrorCode createCalendar(char* fileName, Calendar** obj)
 
 	if ( setProdID == 0 )
 	{
-		return INV_PRODID;
+		return INV_CAL;
 	}
 
 	if ( setVersion == 0)
 	{
-		return INV_VER;
+		return INV_CAL;
 	}
 
 	if ( setEvent == 0 )
@@ -324,17 +392,34 @@ char* printCalendar(const Calendar* obj)
 	char* tmpStr = NULL;
 	char* stringEvent = NULL;
 	int length = 0;
+	int eventLength = 0;
 
 	//need 1000 chars worth for prodID + 20 for version + strlen for event
-	//+ 1 for null terminator 
+	//+ 1 for null terminator + 75 for begin tag + 75 for end tag  
 	Event* tempEvent = obj->event;
 	stringEvent = printEvent((void*)tempEvent);
 
-	length = 1000 + 20 + (strlen(stringEvent)) + 1 ;
+	//if stringEvent not NULL string
+	if ( stringEvent != NULL )
+	{
+		//get length of the stringAlarms
+		eventLength = strlen(stringEvent);
+	}
+	//else it is NULL with no length
+
+
+	length = 1000 + 20 + eventLength + 1 ;
+
 	tmpStr = malloc(sizeof(char)*length);
 
+	//Printing 
+	//Print fist line BEGIN:VCALENDAR
+	char begin[75];
+	char end[75];
+	strcpy(begin, "BEGIN:VCALENDAR\r\n");
+	strcpy(end, "END:VCALENDAR\r\n");
 
-	sprintf(tmpStr, "%f : %s : %s\n", obj->version, obj->prodID, stringEvent);
+	sprintf(tmpStr, "%s%f\r\n%s\r\n%s%s", begin, obj->version, obj->prodID, stringEvent, end);
 
 	free(stringEvent);
 
@@ -420,23 +505,52 @@ char* printEvent(void* toBePrinted)
 	char* stringAlarms = NULL;
 	Event* tempEvent = NULL;
 	int length = 0;
+	int alarmLength = 0;
+	int propLength = 0;
 
 	tempEvent = (Event*) toBePrinted;	
+
 
 	//need 1000 chars worth for UID + 19 for creationDateTime + strlen for properties
 	//+ strlen for alarms + 1 for null terminator 
 	stringAlarms = toString(tempEvent->alarms);
 	stringProp = toString(tempEvent->properties);
+
+	
+
+	//if stringAlarms not NULL string
+	if ( stringAlarms != NULL )
+	{
+		//get length of the stringAlarms
+		alarmLength = strlen(stringAlarms);
+	}
+	//else it is NULL with no length
+
+	//if stringProp not NULL string
+	if ( stringProp != NULL )
+	{
+		//get length of the stringProp
+		propLength = strlen(stringProp);
+	}
+	//else it is NULL with no length
+
 	strcpy(creationDateTime, tempEvent->creationDateTime.date);
 	strcat(creationDateTime, "T");
 	strcat(creationDateTime, tempEvent->creationDateTime.time);
 	strcat(creationDateTime, "Z");
 
-	length = 1000 + 19 + (strlen(stringProp)) + (strlen(stringAlarms)) + 1 ;
+	length = 1000 + 19 + propLength + alarmLength + 2 ;
+
 	tmpStr = malloc(sizeof(char)*length);
 
+	//Printing 
+	//Print fist line BEGIN:VCALENDAR
+	char begin[75];
+	char end[75];
+	strcpy(begin, "BEGIN:VEVENT\r\n");
+	strcpy(end, "END:VEVENT\r\n");
 
-	sprintf(tmpStr, "%s : %s : %s : %s\n", tempEvent->UID, creationDateTime, stringProp, stringAlarms);
+	sprintf(tmpStr, "%s%s\r\n%s\r\n%s\r\n%s\r\n%s", begin, tempEvent->UID, creationDateTime, stringProp, stringAlarms, end);
 
 	free(stringProp);
 	free(stringAlarms);
@@ -477,6 +591,12 @@ Event* parseEvent(FILE* file, int* eventErr)
 
 	while ( fgets(line, 100, file) != NULL )
 	{
+		if (checkLineEnd(line) == 1)
+		{
+			*eventErr = INV_CAL;
+			return NULL;
+		}
+
 		replaceNewLine(line);
 
 		//if blank line
@@ -485,6 +605,13 @@ Event* parseEvent(FILE* file, int* eventErr)
 			//skip line
 			continue;
 		}
+
+		//if first char is ; it is a comment 
+		if (line[0] == ';')
+		{
+			//go to next line
+			continue;
+		}	
 
 		char* UID = "UID";
 		char* DTSTAMP = "DTSTAMP";
@@ -496,13 +623,6 @@ Event* parseEvent(FILE* file, int* eventErr)
 		{
 			break;
 		}
-
-		//if first char is ; it is a comment 
-		if (line[0] == ';')
-		{
-			//go to next line
-			continue;
-		}		
 		//get UID
 		else if ( strstr(line,UID) != NULL )
 		{
@@ -511,6 +631,7 @@ Event* parseEvent(FILE* file, int* eventErr)
 			
 			if (token == NULL)
 			{
+				*eventErr = INV_EVENT;
 				return NULL;
 			}
 			
@@ -518,6 +639,7 @@ Event* parseEvent(FILE* file, int* eventErr)
 
 			if ( strcmp(token,"UID") != 0)
 			{
+				*eventErr = INV_EVENT;
 				return NULL;
 			}
 
@@ -526,6 +648,7 @@ Event* parseEvent(FILE* file, int* eventErr)
 
 			if (token == NULL)
 			{
+				*eventErr = INV_EVENT;
 				return NULL;
 			}
 
@@ -544,6 +667,7 @@ Event* parseEvent(FILE* file, int* eventErr)
 			
 			if (token == NULL)
 			{
+				*eventErr = INV_CREATEDT;
 				return NULL;
 			}
 			
@@ -551,6 +675,7 @@ Event* parseEvent(FILE* file, int* eventErr)
 
 			if ( strcmp(token,"DTSTAMP") != 0)
 			{
+				*eventErr = INV_CREATEDT;
 				return NULL;
 			}
 
@@ -559,6 +684,14 @@ Event* parseEvent(FILE* file, int* eventErr)
 
 			if (token == NULL)
 			{
+				*eventErr = INV_CREATEDT;
+				return NULL;
+			}
+
+			//check length of date is 8
+			if ( strlen(token) != 8)
+			{
+				*eventErr = INV_CREATEDT;
 				return NULL;
 			}
 
@@ -572,7 +705,15 @@ Event* parseEvent(FILE* file, int* eventErr)
 
 			if (token == NULL)
 			{
+				*eventErr = INV_CREATEDT;
 				return NULL;
+			}
+
+			//check length of time is 6
+			if (strlen(token) != 6 )
+			{
+				*eventErr = INV_CREATEDT;
+				return NULL;				
 			}
 
 			replaceNewLine(token);
@@ -590,6 +731,7 @@ Event* parseEvent(FILE* file, int* eventErr)
 			
 			if ( newAlarm == NULL )
 			{
+				*eventErr = INV_EVENT;
 				return NULL;
 			}
 			//add to alarm list
@@ -607,6 +749,7 @@ Event* parseEvent(FILE* file, int* eventErr)
 			
 			if (token == NULL)
 			{
+				*eventErr = INV_EVENT;
 				return NULL;
 			}
 			
@@ -640,6 +783,7 @@ Event* parseEvent(FILE* file, int* eventErr)
 
 			if (token == NULL)
 			{
+				*eventErr = INV_EVENT;
 				return NULL;
 			}
 
@@ -658,23 +802,26 @@ Event* parseEvent(FILE* file, int* eventErr)
 
 	if ( setUID == 0 || setDTSTAMP == 0 )
 	{
+		*eventErr = INV_EVENT;
 		return NULL;
 	}
 
 	//start with no end and no duration
 	if ( setDTSTART == 1 && setDTEND == 0 && setDURATION == 0)
 	{
+		*eventErr = INV_EVENT;
 		return NULL;
 	}
 
 	// end and duration both occur
 	if (setDTEND == 1 && setDURATION == 1)
 	{
+		*eventErr = INV_EVENT;
 		return NULL;
 	}
+
 	*(eventErr) = OK;
 	return event;
-
 }
 
 
@@ -780,7 +927,7 @@ char* printAlarm ( void* toBePrinted )
 	length = 200 + strlen(tmpAlarm->trigger) + (strlen(stringProp)) + 1 ;
 	tmpStr = malloc(sizeof(char)*length);
 
-	sprintf(tmpStr, "%s : %s : %s\n", tmpAlarm->action, tmpAlarm->trigger, stringProp);
+	sprintf(tmpStr, "%s : %s : \n%s\n", tmpAlarm->action, tmpAlarm->trigger, stringProp);
 
 	free(stringProp);
 
@@ -820,6 +967,11 @@ Alarm* parseAlarm (FILE* file)
 
 	while ( fgets(line, 100, file) != NULL )
 	{
+		if (checkLineEnd(line) == 1)
+		{
+			return NULL;
+		}
+
 		replaceNewLine(line);
 
 		//if blank line
@@ -1049,6 +1201,8 @@ void deleteAlarm (void* toBeDeleted)
 	return;
 }
 
+
+
 //replace new line at end of string
 void replaceNewLine(char* string)
 {
@@ -1061,6 +1215,21 @@ void replaceNewLine(char* string)
 			string[i] = '\0';	
 		}
 	}	
+}
+
+
+//check invalid line ending
+int checkLineEnd(char* string)
+{
+	int length = strlen(string);
+	int err = 1;
+	//if invalid line ending
+	if (string[length - 2] == '\n' || string[length - 2] == '\r')
+	{
+		err = 0;
+	}
+
+	return err;
 }
 
 //free the memory allocated to the property
@@ -1096,46 +1265,60 @@ char* printError(ErrorCode err)
 	if (err == INV_FILE)
 	{
 		returnString = "invalid file";
+		return returnString;
 	}
 
 	else if ( err == INV_VER )
 	{
 		returnString = "invalid version";
+		return returnString;
 	}
 
 	else if ( err == DUP_VER )
 	{
 		returnString = "duplicate version";
+		return returnString;
 	}
 
 	else if ( err == INV_PRODID )
 	{
 		returnString = "invalid product ID";
+		return returnString;
 	}
 
 	else if ( err == DUP_PRODID )
 	{
 		returnString = "duplicate product ID";
+		return returnString;
 	}
 
 	else if ( err == INV_CAL )
 	{
 		returnString = "invalid calendar";
+		return returnString;
 	}
 
 	else if ( err == INV_CREATEDT )
 	{
 		returnString =  "invalid event creation date-time property";
+		return returnString;
 	}
 
-	else if (INV_EVENT)
+	else if ( err == INV_EVENT)
 	{
 		returnString = "invalid event";
+		return returnString;
 	}
 
-	else if (OTHER_ERROR)
+	else if ( err == OTHER_ERROR)
 	{
 		returnString = "other error : possibly ran out of memory";
+		return returnString;
+	}
+	else if (err == OK)
+	{
+		returnString = "Success!";
+		return returnString;
 	}
 
 	return NULL;

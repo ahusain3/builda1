@@ -492,13 +492,14 @@ char* toString(List list)
 		if (returnString == NULL)
 		{
 			//instead of keeping a character counter we use strlen everytime
-			returnString = malloc( sizeof(char) * (strlen(currData) + 1) );
+			returnString = malloc( sizeof(char) * (strlen(currData) + 2) );
 			if ( returnString == NULL )
 			{
 				return NULL;
 			}
 			//use strcpy DO NOT SET pointers equal to each other
-			strcpy(returnString , currData);
+			strcpy(returnString, "-");
+			strcat(returnString , currData);
 		}
 		else
 		{

@@ -23,6 +23,9 @@ Alarm* parseAlarm (FILE* file);
 //replace new line at end of string
 void replaceNewLine(char* string);
 
+//check invalid line ending
+int checkLineEnd(char* string);
+
 /**
 *Function for parsing an event for the calendar
 **/

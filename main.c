@@ -117,16 +117,23 @@ int main (void)
 	// free(printAgain);
 
 
-//	deleteCalendar(dummyCal);
+	// deleteCalendar(dummyCal);
+
+//***PARTITION acutal tests files past this point
 
 	//check createCalendar
-	char* fileName = "ahsenCalendar.ics";
+	char fileName[250];
+	strcpy(fileName , "testCalEvtPropAlm.ics");
 
 	Calendar* cal = NULL;
 
 
 	createCalendar(fileName, &cal);
-	
+
+	// //Print Calendar
+	char* returnString = printCalendar(cal);
+	printf("%s\n", returnString);
+	free(returnString);
 
 	deleteCalendar(cal);
 
